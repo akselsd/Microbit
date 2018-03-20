@@ -10,7 +10,7 @@
 typedef struct { 
 	volatile uint32_t STARTRX;
 	volatile uint32_t STOPRX;
-	volatile uint32_t STARTTTX;
+	volatile uint32_t STARTTX;
 	volatile uint32_t STOPTX;
 	volatile uint32_t RESERVED0[248/4];		
 	volatile uint32_t RXDREADY;
