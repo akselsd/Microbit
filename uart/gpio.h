@@ -3,13 +3,6 @@
 #include <stdint.h>
 
 #define GPIO ((NRF_GPIO_REG*)0x50000000)
-#define NROWS 3
-#define NCOLUMNS 9
-#define __BUTTON_A_PIN__ 17 //Datablad
-#define __BUTTON_B_PIN__ 26 //Datablad
-#define __ACTIVE_BUTTON__ 0 //Knapper aktive lave
-const int MATRIX_ROWS[NROWS] = [13, 14, 15];
-const int MATRIX_COLUMNS[NCOLUMNS] = [4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 typedef struct {
 	volatile uint32_t RESERVED0[321];

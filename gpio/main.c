@@ -34,7 +34,7 @@ void set_led_matrix() {
 void clear_led_matrix() {
 	for (int i = 0; i < NROWS; i++)
 	{
-		GPIO->OUTCLR = (1<<i);
+		GPIO->OUTCLR = (1<<MATRIX_ROWS[i]);
 	}
 }
 
@@ -62,7 +62,7 @@ int main(){
 		/* Check if button A is pressed;
 		 * turn off LED matrix if it is. */
 		if (GPIO->IN[__BUTTON_A_PIN__] == __ACTIVE_BUTTON__) {
-			set_led_matrix(0);
+			clear_led_matrix();
 		}
 
 		sleep = 10000;

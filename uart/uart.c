@@ -1,19 +1,68 @@
 #include "uart.h"
+#include "gpio.h"
+#include <stdint.h>
+
+#define UART ((NRF_UART_REG*)0x40002000)
+typedef struct {
+    // Tasks
+    volatile uint32_t STARTRX;
+    volatile uint32_t STOPRX;
+    volatile uint32_t STARTTX;
+    volatile uint32_t STOPTX;
+    volatile uint32_t RESERVED0[3];
+    volatile uint32_t SUSPEND;
+
+    // Events
+    volatile uint32_t RESERVED1[56];
+    volatile uint32_t CTS;
+    volatile uint32_t NCTS;
+    volatile uint32_t RXDRDY;
+    volatile uint32_t RESERVED2[4];
+    volatile uint32_t TXDRDY;
+    volatile uint32_t RESERVED3[1];
+    volatile uint32_t ERROR;
+    volatile uint32_t RESERVED4[7];
+    volatile uint32_t RXTO;
+
+    // Registers
+    volatile uint32_t RESERVED5[110];
+    volatile uint32_t INTEN;
+    volatile uint32_t INTENSET;
+    volatile uint32_t INTENCLR;
+    volatile uint32_t RESERVED6[93];
+    volatile uint32_t ERRORSRC;
+    volatile uint32_t RESERVED7[31];
+    volatile uint32_t ENABLE;
+    volatile uint32_t RESERVED8[1];
+    volatile uint32_t PSELRTS;
+    volatile uint32_t PSELTXD;
+    volatile uint32_t PSELCTS;
+    volatile uint32_t PSELRXD;
+    volatile uint32_t RXD;
+    volatile uint32_t TXD;
+    volatile uint32_t RESERVED9[1];
+    volatile uint32_t BAUDRATE;
+    volatile uint32_t RESERVED10[17];
+    volatile uint32_t CONFIG;
+
+} NRF_UART_REG;
+
 
 void uart_init() {
 	//Config pins
-	GPIO->DIRCLR = (1 << TGT_RXD_PIN);
-	GPIO->DIRSET = (1 << TGT_TXD_PIN);
+	GPIO->PIN_CNF[25] = 0;
+	GPIO->PIN_CNF[24] = 1;
 	
-	UART->PSELTXD = (TGT_TXD_PIN);
-	UART->PSELRXD = (TGT_RXD_PIN);
+	UART->PSELTXD = 24;
+	UART->PSELRXD = 25;
 
-	//Set baudrate limit
-	UART->BAUDRATE = MAX_BAUDRATE;
 	
 	//Disable hardware flor control
-	UART->CONFIG = 0;
-	
+	UART->PSELRTS = 0xFFFFFFFF;
+	UART->PSELCTS = 0xFFFFFFFF;
+
+	//Set baudrate limit
+	UART->BAUDRATE = 0x00275000;
 	//Enable UART
 	UART->ENABLE = 4;
 
@@ -21,25 +70,25 @@ void uart_init() {
 	UART->STARTRX = 1;
 }
 
-void uart_send(const char letter) {
+void uart_send(char letter) {
 	UART->STARTTX = 1;
-	UART->TXDREADY = 0;
+	UART->TXDRDY = 0;
 	UART->TXD = letter;
 
 	//Wait for confirmation
-	while (UART->TXDREADY != 1) {
+	while (!UART->TXDRDY) {
 	}
-	
-	//Clear event register
-	UART->TXDREADY = 0;
+
+	UART->STOPTX = 1;
 }
 
 char uart_read() {
-	UART->RXDREADY = 0;
-	UART->STARTRX = 1;
 
-	if (UART->RXREADY) {
-		return UART->TXD;
+	if (UART->RXDRDY) {
+		UART->STARTRX = 1;
+		char c = UART->RXD;
+		UART->STOPRX = 1;
+		return c;
 	}
 	return '\0';
 	
