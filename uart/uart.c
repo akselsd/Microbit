@@ -23,6 +23,7 @@ void uart_init() {
 
 void uart_send(const char letter) {
 	UART->STARTTX = 1;
+	UART->TXDREADY = 0;
 	UART->TXD = letter;
 
 	//Wait for confirmation
