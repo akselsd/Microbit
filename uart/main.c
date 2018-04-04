@@ -43,10 +43,12 @@ int main(){
 
 		if (GPIO->IN[__BUTTON_A_PIN__] == __ACTIVE_BUTTON__) {
 			uart_send('A');
-			iprintf("Norway has %d counties.\n\r", 18);
+			set_led_matrix();
+			//iprintf("Norway has %d counties.\n\r", 18);
 		}
 		if (GPIO->IN[__BUTTON_B_PIN__] == __ACTIVE_BUTTON__) {
 			uart_send('B');
+			clear_led_matrix();
 		}
 
 		char read_char = uart_read();
